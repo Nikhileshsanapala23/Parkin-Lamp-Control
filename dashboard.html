@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parkin Smart Parking Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #8b5cf6;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #e2e8f0;
+            --gray-dark: #94a3b8;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .logo img {
+            width: 36px;
+            margin-right: 12px;
+        }
+        
+        .logo h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover {
+            background-color: var(--gray);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary-light);
+            color: white;
+        }
+        
+        .nav-link i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-title {
+            font-size: 0.875rem;
+            color: var(--gray-dark);
+            font-weight: 500;
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .stat-icon.total {
+            background-color: var(--primary-light);
+        }
+        
+        .stat-icon.online {
+            background-color: var(--secondary);
+        }
+        
+        .stat-icon.offline {
+            background-color: var(--danger);
+        }
+        
+        .stat-icon.degraded {
+            background-color: var(--warning);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-change {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+        
+        .stat-change.negative {
+            color: var(--danger);
+        }
+        
+        /* Control Panel */
+        .control-panel {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .panel-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 0.875rem;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #0d9488;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray-dark);
+            color: var(--dark);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--gray);
+        }
+        
+        select {
+            padding: 0.625rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--gray-dark);
+            background-color: white;
+            font-size: 0.875rem;
+            min-width: 180px;
+        }
+        
+        /* Lamp Grid */
+        .lamp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .lamp-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            border-top: 4px solid;
+        }
+        
+        .lamp-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .lamp-card.red {
+            border-color: var(--danger);
+        }
+        
+        .lamp-card.green {
+            border-color: var(--secondary);
+        }
+        
+        .lamp-card.purple {
+            border-color: var(--info);
+        }
+        
+        .lamp-card.offline {
+            opacity: 0.6;
+            position: relative;
+        }
+        
+        .lamp-card.offline::after {
+            content: 'OFFLINE';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--danger);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .lamp-card.degraded {
+            position: relative;
+        }
+        
+        .lamp-card.degraded::after {
+            content: 'DEGRADED';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--warning);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .lamp-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .lamp-id {
+            font-weight: 600;
+        }
+        
+        .lamp-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            background-color: var(--gray);
+            color: var(--dark);
+        }
+        
+        .lamp-color {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .lamp-color.red {
+            background-color: var(--danger);
+        }
+        
+        .lamp-color.green {
+            background-color: var(--secondary);
+        }
+        
+        .lamp-color.purple {
+            background-color: var(--info);
+        }
+        
+        .lamp-slots {
+            font-size: 0.875rem;
+            color: var(--gray-dark);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .lamp-control {
+            width: 100%;
+        }
+        
+        .lamp-control select {
+            width: 100%;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--secondary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            transform: translateX(200%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        .notification i {
+            margin-right: 12px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                height: auto;
+                position: static;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .lamp-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="https://cdn-icons-png.flaticon.com/512/3214/3214929.png" alt="Parkin Logo">
+                <h1>Parkin</h1>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Parking Map
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        Analytics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-bell"></i>
+                        Alerts
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1 class="page-title">Parking Lamp Control</h1>
+                <div class="last-updated">Last updated: <span id="last-updated">Just now</span></div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3 class="stat-title">Total Lamps</h3>
+                        <div class="stat-icon total">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                    </div>
+                    <p class="stat-value" id="total-lamps">100</p>
+                    <p class="stat-change">All systems operational</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3 class="stat-title">Online</h3>
+                        <div class="stat-icon online">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <p class="stat-value" id="online-lamps">95</p>
+                    <p class="stat-change">95% availability</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3 class="stat-title">Offline</h3>
+                        <div class="stat-icon offline">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                    </div>
+                    <p class="stat-value" id="offline-lamps">3</p>
+                    <p class="stat-change negative">Requires attention</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3 class="stat-title">Degraded</h3>
+                        <div class="stat-icon degraded">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                    </div>
+                    <p class="stat-value" id="degraded-lamps">2</p>
+                    <p class="stat-change negative">Needs maintenance</p>
+                </div>
+            </div>
+            
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Lamp Controls</h2>
+                    <div class="panel-actions">
+                        <button class="btn btn-outline">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" id="reset-all">
+                        <i class="fas fa-sync-alt"></i> Reset All
+                    </button>
+                    <button class="btn btn-secondary" id="test-all">
+                        <i class="fas fa-vial"></i> Test All
+                    </button>
+                    <select id="bulk-color">
+                        <option value="green">Green (Vacant)</option>
+                        <option value="red">Red (Occupied)</option>
+                        <option value="purple">Purple (Reserved)</option>
+                    </select>
+                    <button class="btn btn-danger" id="apply-bulk">
+                        <i class="fas fa-check"></i> Apply
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Lamp Grid -->
+            <h2 style="margin-bottom: 1rem; font-size: 1.25rem; font-weight: 600;">Lamp Status</h2>
+            <div class="lamp-grid" id="lamp-container">
+                <!-- Lamp cards will be generated here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-message">Operation completed successfully</span>
+    </div>
+
+    <script>
+        // API base URL
+        const API_BASE = 'http://localhost:5000/api';
+        
+        // Lamp data
+        let lamps = [];
+        
+        // Initialize dashboard
+        async function initDashboard() {
+            await fetchLampStatus();
+            renderLamps();
+            updateHealthStatus();
+            updateLastUpdated();
+            
+            // Set up periodic refresh
+            setInterval(async () => {
+                await fetchLampStatus();
+                renderLamps();
+                updateHealthStatus();
+                updateLastUpdated();
+            }, 30000); // Refresh every 30 seconds
+        }
+        
+        // Fetch lamp status from API
+        async function fetchLampStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/lamp/health`);
+                const healthData = await response.json();
+                
+                // Update health counters
+                document.getElementById('total-lamps').textContent = healthData.total_lamps;
+                document.getElementById('online-lamps').textContent = healthData.online;
+                document.getElementById('offline-lamps').textContent = healthData.offline;
+                document.getElementById('degraded-lamps').textContent = healthData.degraded;
+                
+                // Fetch individual lamp status
+                lamps = [];
+                for (let i = 1; i <= healthData.total_lamps; i++) {
+                    const lampResponse = await fetch(`${API_BASE}/lamp/${i}`);
+                    const lampData = await lampResponse.json();
+                    lamps.push(lampData);
+                }
+            } catch (error) {
+                console.error('Error fetching lamp status:', error);
+                showNotification('Error fetching lamp status', true);
+            }
+        }
+        
+        // Render lamp cards
+        function renderLamps() {
+            const container = document.getElementById('lamp-container');
+            container.innerHTML = '';
+            
+            lamps.forEach(lamp => {
+                const lampCard = document.createElement('div');
+                lampCard.className = `lamp-card ${lamp.color} ${lamp.health !== 'online' ? lamp.health : ''}`;
+                
+                // Get appropriate icon for the color
+                let lampIcon = 'fa-lightbulb';
+                if (lamp.color === 'red') lampIcon = 'fa-car';
+                if (lamp.color === 'green') lampIcon = 'fa-parking';
+                if (lamp.color === 'purple') lampIcon = 'fa-clock';
+                
+                lampCard.innerHTML = `
+                    <div class="lamp-header">
+                        <div class="lamp-id">Lamp ${lamp.node_id}</div>
+                        <div class="lamp-status">${lamp.health}</div>
+                    </div>
+                    <div class="lamp-color ${lamp.color}">
+                        <i class="fas ${lampIcon}"></i>
+                    </div>
+                    <div class="lamp-slots">Slots ${(lamp.node_id-1)*6 + 1}-${lamp.node_id*6}</div>
+                    <div class="lamp-control">
+                        <select class="lamp-select" data-node="${lamp.node_id}">
+                            <option value="green" ${lamp.color === 'green' ? 'selected' : ''}>Vacant (Green)</option>
+                            <option value="red" ${lamp.color === 'red' ? 'selected' : ''}>Occupied (Red)</option>
+                            <option value="purple" ${lamp.color === 'purple' ? 'selected' : ''}>Reserved (Purple)</option>
+                        </select>
+                    </div>
+                `;
+                
+                // Add event listener for color change
+                const select = lampCard.querySelector('.lamp-select');
+                select.addEventListener('change', (e) => {
+                    updateLampColor(e.target.dataset.node, e.target.value);
+                });
+                
+                container.appendChild(lampCard);
+            });
+        }
+        
+        // Update lamp color via API
+        async function updateLampColor(nodeId, color) {
+            try {
+                const response = await fetch(`${API_BASE}/lamp/${nodeId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ color })
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    // Update local data
+                    const lamp = lamps.find(l => l.node_id == nodeId);
+                    if (lamp) {
+                        lamp.color = color;
+                        lamp.last_updated = Date.now() / 1000;
+                        lamp.health = 'online';
+                    }
+                    renderLamps();
+                    updateHealthStatus();
+                    updateLastUpdated();
+                    showNotification(`Lamp ${nodeId} updated to ${color}`);
+                } else {
+                    showNotification(`Failed to update lamp ${nodeId}`, true);
+                }
+            } catch (error) {
+                console.error('Error updating lamp:', error);
+                showNotification('Error updating lamp', true);
+            }
+        }
+        
+        // Update health status display
+        function updateHealthStatus() {
+            const online = lamps.filter(l => l.health === 'online').length;
+            const offline = lamps.filter(l => l.health === 'offline').length;
+            const degraded = lamps.filter(l => l.health === 'degraded').length;
+            
+            document.getElementById('online-lamps').textContent = online;
+            document.getElementById('offline-lamps').textContent = offline;
+            document.getElementById('degraded-lamps').textContent = degraded;
+        }
+        
+        // Update last updated time
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('last-updated').textContent = now.toLocaleTimeString();
+        }
+        
+        // Show notification
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            const notificationMsg = document.getElementById('notification-message');
+            
+            notificationMsg.textContent = message;
+            
+            if (isError) {
+                notification.className = 'notification error';
+                notification.querySelector('i').className = 'fas fa-exclamation-circle';
+            } else {
+                notification.className = 'notification';
+                notification.querySelector('i').className = 'fas fa-check-circle';
+            }
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Reset all lamps to green
+        document.getElementById('reset-all').addEventListener('click', async () => {
+            if (confirm('Are you sure you want to reset all lamps to green (vacant)?')) {
+                try {
+                    const response = await fetch(`${API_BASE}/lamp/reset`, {
+                        method: 'POST'
+                    });
+                    
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        await fetchLampStatus();
+                        renderLamps();
+                        updateHealthStatus();
+                        updateLastUpdated();
+                        showNotification('All lamps reset to green');
+                    } else {
+                        showNotification('Failed to reset lamps', true);
+                    }
+                } catch (error) {
+                    console.error('Error resetting lamps:', error);
+                    showNotification('Error resetting lamps', true);
+                }
+            }
+        });
+        
+        // Test all colors (cycle through colors)
+        document.getElementById('test-all').addEventListener('click', async () => {
+            if (confirm('This will cycle all lamps through test colors. Continue?')) {
+                const colors = ['red', 'green', 'purple'];
+                showNotification('Starting lamp test sequence');
+                
+                for (const color of colors) {
+                    try {
+                        const updates = lamps.map(lamp => ({
+                            node_id: lamp.node_id,
+                            color: color
+                        }));
+                        
+                        await fetch(`${API_BASE}/lamp/bulk`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ updates })
+                        });
+                        
+                        showNotification(`Testing all lamps: ${color}`);
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+                    } catch (error) {
+                        console.error('Error during test:', error);
+                        showNotification('Error during lamp test', true);
+                        break;
+                    }
+                }
+                
+                // Reset to actual status
+                await fetchLampStatus();
+                renderLamps();
+                updateLastUpdated();
+                showNotification('Lamp test completed');
+            }
+        });
+        
+        // Apply bulk color to selected lamps
+        document.getElementById('apply-bulk').addEventListener('click', async () => {
+            const color = document.getElementById('bulk-color').value;
+            const selectedLamps = []; // In a real app, you'd have a selection mechanism
+            
+            // For demo purposes, we'll select the first 10 lamps
+            for (let i = 1; i <= 10; i++) {
+                selectedLamps.push(i);
+            }
+            
+            if (selectedLamps.length === 0) {
+                showNotification('Please select lamps to update', true);
+                return;
+            }
+            
+            const colorName = {
+                'red': 'Occupied (Red)',
+                'green': 'Vacant (Green)',
+                'purple': 'Reserved (Purple)'
+            }[color];
+            
+            if (confirm(`Set ${selectedLamps.length} lamps to ${colorName}?`)) {
+                try {
+                    const updates = selectedLamps.map(nodeId => ({
+                        node_id: nodeId,
+                        color: color
+                    }));
+                    
+                    const response = await fetch(`${API_BASE}/lamp/bulk`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ updates })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.status === 'completed') {
+                        await fetchLampStatus();
+                        renderLamps();
+                        updateLastUpdated();
+                        showNotification(`Updated ${selectedLamps.length} lamps to ${colorName}`);
+                    } else {
+                        showNotification('Bulk update partially failed', true);
+                    }
+                } catch (error) {
+                    console.error('Error in bulk update:', error);
+                    showNotification('Error in bulk update', true);
+                }
+            }
+        });
+        
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
